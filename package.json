@@ -1,0 +1,12 @@
+{
+  "name": "classroom-timer-display-application",
+  "version": "1.0.0",
+  "description": "Single-screen classroom timer/display app (Flask + Tailwind v3)",
+  "scripts": {
+    "build-css": "tailwindcss -i ./static/src/input.css -o ./static/dist/output.css",
+    "watch-css": "tailwindcss -i ./static/src/input.css -o ./static/dist/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3"
+  }
+}
