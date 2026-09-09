@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Classroom Timer</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}" />
+  <style>
+    /* Step 4 — visual alert at zero. Toggled via JS by adding/
+       removing .timer-alert-active (no Tailwind rebuild needed). */
+    @keyframes timer-alert-flash {
+      0%, 100% { background-color: rgba(225, 29, 72, 0.35); border-color: #f43f5e; }
+      50% { background-color: rgba(225, 29, 72, 0.05); border-color: #7f1d1d; }
+    }
+    @keyframes timer-alert-pulse {
+      0%, 100% { color: #fff; transform: scale(1); }
+      50% { color: #fecdd3; transform: scale(1.05); }
+    }
+    #timer-stage.timer-alert-active {
+      animation: timer-alert-flash 0.8s ease-in-out infinite;
+    }
+    #countdown-display.timer-alert-active {
+      animation: timer-alert-pulse 0.8s ease-in-out infinite;
+    }
+  </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
   <main id="app" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-6 py-8">
@@ -35,6 +53,13 @@
       >10:00</div>
 
       <p class="mt-2 text-sm uppercase tracking-[0.25em] text-slate-500">minutes : seconds</p>
+
+      <!-- Step 4 visual alert banner: hidden until countdown hits zero -->
+      <p
+        id="alert-banner"
+        role="alert"
+        class="mt-4 hidden rounded-2xl bg-rose-600 px-8 py-3 text-3xl font-black uppercase tracking-[0.2em] text-white shadow-lg"
+      >Time&rsquo;s up!</p>
     </section>
 
     <!-- Setup + controls -->

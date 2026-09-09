@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Step 4 — visual alert at zero (mirrors the <style> block in
+   templates/index.html so Tailwind rebuilds keep the effect). */
+@keyframes timer-alert-flash {
+  0%, 100% { background-color: rgba(225, 29, 72, 0.35); border-color: #f43f5e; }
+  50% { background-color: rgba(225, 29, 72, 0.05); border-color: #7f1d1d; }
+}
+@keyframes timer-alert-pulse {
+  0%, 100% { color: #fff; transform: scale(1); }
+  50% { color: #fecdd3; transform: scale(1.05); }
+}
+#timer-stage.timer-alert-active {
+  animation: timer-alert-flash 0.8s ease-in-out infinite;
+}
+#countdown-display.timer-alert-active {
+  animation: timer-alert-pulse 0.8s ease-in-out infinite;
+}
