@@ -8,6 +8,14 @@
   <style>
     /* Step 4 — visual alert at zero. Toggled via JS by adding/
        removing .timer-alert-active (no Tailwind rebuild needed). */
+    /* Step 5 — keep the dark projector-friendly background while in
+       Fullscreen API mode (browsers may otherwise letterbox white). */
+    :fullscreen {
+      background-color: #020617;
+    }
+    :-webkit-full-screen {
+      background-color: #020617;
+    }
     @keyframes timer-alert-flash {
       0%, 100% { background-color: rgba(225, 29, 72, 0.35); border-color: #f43f5e; }
       50% { background-color: rgba(225, 29, 72, 0.05); border-color: #7f1d1d; }
@@ -26,9 +34,17 @@
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
   <main id="app" class="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-6 py-8">
-    <!-- Top bar -->
-    <header class="w-full text-center">
-      <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Classroom Timer</p>
+    <!-- Top bar: title + Step 5 fullscreen toggle for projector use -->
+    <header class="flex w-full items-center justify-between gap-4">
+      <span class="hidden w-28 sm:block" aria-hidden="true"></span>
+      <p class="flex-1 text-center text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Classroom Timer</p>
+      <button
+        id="btn-fullscreen"
+        type="button"
+        title="Toggle fullscreen (F)"
+        aria-label="Toggle fullscreen"
+        class="w-28 shrink-0 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-base font-semibold text-slate-100 hover:bg-slate-700 active:bg-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+      >⛶ Fullscreen</button>
     </header>
 
     <!-- Timer stage: Step 4 will hook visual alerts onto this wrapper -->
@@ -44,12 +60,13 @@
         class="mt-3 w-full max-w-3xl border-b-2 border-slate-700 bg-transparent px-2 pb-2 text-center text-3xl font-semibold text-white placeholder:text-slate-600 focus:border-sky-400 focus:outline-none md:text-4xl"
       />
 
-      <!-- Big countdown display (static placeholder, no JS yet) -->
+      <!-- Big countdown display. clamp() keeps it readable on short
+           projector screens (1280x720) without overflowing on phones. -->
       <div
         id="countdown-display"
         role="timer"
         aria-live="off"
-        class="mt-4 font-mono text-[18vh] font-bold leading-none tracking-tight text-white tabular-nums select-none"
+        class="mt-4 font-mono text-[clamp(4.5rem,18vh,11rem)] font-bold leading-none tracking-tight text-white tabular-nums select-none"
       >10:00</div>
 
       <p class="mt-2 text-sm uppercase tracking-[0.25em] text-slate-500">minutes : seconds</p>
@@ -108,14 +125,14 @@
       <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 sm:p-6">
         <h2 class="text-center text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Controls</h2>
         <div class="mt-4 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          <button id="btn-start" type="button" class="min-w-32 rounded-2xl bg-emerald-500 px-8 py-4 text-xl font-bold text-slate-950 hover:bg-emerald-400 active:bg-emerald-600">Start</button>
-          <button id="btn-pause" type="button" class="min-w-32 rounded-2xl bg-amber-400 px-8 py-4 text-xl font-bold text-slate-950 hover:bg-amber-300 active:bg-amber-500">Pause</button>
-          <button id="btn-reset" type="button" class="min-w-32 rounded-2xl bg-rose-600 px-8 py-4 text-xl font-bold text-white hover:bg-rose-500 active:bg-rose-700">Reset</button>
+          <button id="btn-start" type="button" title="Start / resume (Space)" class="min-w-[8rem] rounded-2xl bg-emerald-500 px-8 py-4 text-xl font-bold text-slate-950 hover:bg-emerald-400 active:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200">Start</button>
+          <button id="btn-pause" type="button" title="Pause (Space)" class="min-w-[8rem] rounded-2xl bg-amber-400 px-8 py-4 text-xl font-bold text-slate-950 hover:bg-amber-300 active:bg-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200">Pause</button>
+          <button id="btn-reset" type="button" title="Reset (R)" class="min-w-[8rem] rounded-2xl bg-rose-600 px-8 py-4 text-xl font-bold text-white hover:bg-rose-500 active:bg-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300">Reset</button>
         </div>
       </div>
     </section>
 
-    <footer class="mt-6 text-center text-sm text-slate-500">Set a duration, then Start. Refreshing the page resets everything.</footer>
+    <footer class="mt-6 text-center text-sm text-slate-400">Set a duration, then Start. Shortcuts: <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">Space</kbd> start/pause · <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">R</kbd> reset · <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">F</kbd> fullscreen. Refreshing the page resets everything.</footer>
   </main>
   <script src="{{ url_for('static', filename='src/app.js') }}" defer></script>
 </body>

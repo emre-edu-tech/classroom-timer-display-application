@@ -1,11 +1,13 @@
 // Step 3 — Timer Logic (vanilla JS, no frameworks, no persistence).
 // Step 4 — Alert Behavior at zero: Web Audio chime + visual flash/pulse.
+// Step 5 — Polish: Fullscreen API toggle + keyboard shortcuts (Space/R/F).
 //
 // Element IDs come from Step 2 markup in templates/index.html:
 //   #countdown-display, #task-label (free text, untouched by JS),
 //   #duration-minutes, #duration-seconds,
 //   #preset-5m, #preset-10m, #preset-15m,
 //   #btn-start, #btn-pause, #btn-reset,
+//   #btn-fullscreen (Step 5),
 //   #timer-stage, #alert-banner (Step 4 visual alert hooks).
 //
 // Edge-case choices (per spec, either option allowed):
@@ -24,6 +26,8 @@
   var startBtn = document.getElementById("btn-start");
   var pauseBtn = document.getElementById("btn-pause");
   var resetBtn = document.getElementById("btn-reset");
+  // Step 5 fullscreen toggle (may be null in older markup — guarded below).
+  var fullscreenBtn = document.getElementById("btn-fullscreen");
   // Step 4 visual-alert hooks (may be null in older markup — guarded below).
   var stageEl = document.getElementById("timer-stage");
   var bannerEl = document.getElementById("alert-banner");
@@ -335,6 +339,116 @@
       btn.addEventListener("click", function () {
         applyPreset(presetButtons[id]);
       });
+    }
+  });
+
+  // ---- Step 5: fullscreen + keyboard shortcuts ----
+
+  function isFullscreen() {
+    return Boolean(
+      document.fullscreenElement || document.webkitFullscreenElement
+    );
+  }
+
+  // Toggle projector fullscreen via the Fullscreen API. Failures
+  // (e.g. unsupported browser, denied request) are silently ignored
+  // so the timer itself never breaks.
+  function toggleFullscreen() {
+    try {
+      if (isFullscreen()) {
+        if (document.exitFullscreen) {
+          var p = document.exitFullscreen();
+          if (p && typeof p.catch === "function") {
+            p.catch(function () {});
+          }
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } else {
+        var el = document.documentElement;
+        if (el.requestFullscreen) {
+          var r = el.requestFullscreen();
+          if (r && typeof r.catch === "function") {
+            r.catch(function () {});
+          }
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        }
+      }
+    } catch (e) {
+      // Fullscreen unavailable — ignore, timer keeps working.
+    }
+  }
+
+  function syncFullscreenLabel() {
+    if (fullscreenBtn) {
+      fullscreenBtn.textContent = isFullscreen()
+        ? "\u00d7 Exit fullscreen"
+        : "\u26f6 Fullscreen";
+    }
+  }
+
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener("click", toggleFullscreen);
+  }
+  document.addEventListener("fullscreenchange", syncFullscreenLabel);
+  document.addEventListener("webkitfullscreenchange", syncFullscreenLabel);
+  syncFullscreenLabel();
+
+  // Keyboard shortcuts for mid-class use: Space = start/pause toggle,
+  // R = reset, F = fullscreen. Ignored while focus is in a text field
+  // (task label, duration inputs), a select, textarea, or any
+  // contentEditable element, so typing never triggers timer actions.
+  // Space on a focused button is also left to the browser's native
+  // button activation to avoid double-toggling.
+  function isTypingTarget(target) {
+    if (!target) {
+      return false;
+    }
+    var tag = (target.tagName || "").toUpperCase();
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+      return true;
+    }
+    if (target.isContentEditable) {
+      return true;
+    }
+    return false;
+  }
+
+  function toggleStartPause() {
+    if (isRunning()) {
+      pause();
+    } else {
+      start();
+    }
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.defaultPrevented) {
+      return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      return;
+    }
+    var target = e.target;
+    if (isTypingTarget(target)) {
+      return;
+    }
+    var key = e.key;
+    if (key === " " || key === "Spacebar") {
+      // Let a focused button handle Space natively (click), otherwise
+      // it would both click AND toggle.
+      if (target && (target.tagName || "").toUpperCase() === "BUTTON") {
+        return;
+      }
+      e.preventDefault();
+      toggleStartPause();
+    } else if (key === "r" || key === "R") {
+      e.preventDefault();
+      reset();
+    } else if (key === "f" || key === "F") {
+      e.preventDefault();
+      toggleFullscreen();
     }
   });
 

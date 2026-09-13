@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 /* Step 4 — visual alert at zero (mirrors the <style> block in
-   templates/index.html so Tailwind rebuilds keep the effect). */
+   templates/index.html so Tailwind rebuilds keep the effect).
+   Step 5 — :fullscreen rule mirrored for the same reason. */
 @keyframes timer-alert-flash {
   0%, 100% { background-color: rgba(225, 29, 72, 0.35); border-color: #f43f5e; }
   50% { background-color: rgba(225, 29, 72, 0.05); border-color: #7f1d1d; }
@@ -17,4 +18,11 @@
 }
 #countdown-display.timer-alert-active {
   animation: timer-alert-pulse 0.8s ease-in-out infinite;
+}
+/* Step 5 — keep the dark projector-friendly background in Fullscreen API mode. */
+:fullscreen {
+  background-color: #020617;
+}
+:-webkit-full-screen {
+  background-color: #020617;
 }
