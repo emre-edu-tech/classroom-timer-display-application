@@ -73,6 +73,38 @@ Single key: **`ct-settings`**, value: JSON object.
   duration, at rest.
 - Fullscreen state: cannot and should not be persisted.
 
+## Duration validation on Start (empty-field fix)
+
+Addendum to the duration-input behavior this spec already governs via
+`lastDuration`. Previously, pressing Start with an empty Min/Sec field
+failed silently: the empty field already coerced to `0` in memory, so a
+`00:00` Start hit the "zero duration" branch and the click appeared
+dead. New behavior, triggered on every Start press (point 3 below
+explains why the resume path needs it too):
+
+1. Any EMPTY `#duration-minutes` / `#duration-seconds` field is
+   normalized to `0` **in the DOM** (the input visibly shows `0`, not
+   just the internal value) before the Start action proceeds.
+2. A transient validation hint appears in `#duration-hint`
+   (`role="status"`, amber text, auto-hides after ~4 s):
+   - Duration is still `00:00` → "Enter a duration greater than 00:00
+     to start. Empty field(s) were set to 0." The Min input receives
+     focus; no countdown runs.
+   - Duration is valid after normalization (e.g. Min empty, Sec 30) →
+     the countdown starts/resumes normally and the hint only notes
+     "Empty field(s) were set to 0."
+3. Normalization runs on **every** Start press, including the
+   resume-after-pause path: a live edit while idle stages the coerced
+   value in `remainingSeconds`, which would otherwise resume without
+   ever fixing the blank input. Resume still never re-reads the inputs
+   for timing — only the blank fields are rewritten.
+3. The hint is presentation-only: no modal, no storage, no new state;
+   it is hidden again by any timeout and re-shown/replaced on the next
+   Start. It never throws (guarded like every other DOM access).
+4. When normalization changed a field, the normalized duration is
+   persisted to `lastDuration` immediately so the blob stays in sync
+   with what is on screen.
+
 ## Acceptance criteria
 
 1. Change language, volume, alarm voice, toggles, task label, and
@@ -83,3 +115,7 @@ Single key: **`ct-settings`**, value: JSON object.
 4. No cookies, no backend calls, no new storage keys beyond
    `ct-settings` (the i18n spec's earlier `ct-lang` proposal is
    superseded by this blob).
+5. Pressing Start with an empty Min and/or Sec field shows the
+   validation hint, sets the empty field(s) to `0` visibly, and starts
+   the countdown when the resulting duration is greater than 00:00
+   (a `00:00` result still never starts, but is now explained).

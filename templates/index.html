@@ -119,6 +119,14 @@
             <button id="preset-15m" type="button" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-lg font-semibold text-slate-100 hover:bg-slate-700">15 min</button>
           </div>
         </div>
+
+        <!-- Duration validation hint: transient message shown/hidden by
+             JS when Start finds an empty duration field (never a modal) -->
+        <p
+          id="duration-hint"
+          role="status"
+          class="mt-3 hidden text-center text-sm font-semibold text-amber-300"
+        ></p>
       </div>
 
       <!-- Controls -->
@@ -132,7 +140,7 @@
       </div>
     </section>
 
-    <footer class="mt-6 text-center text-sm text-slate-400">Set a duration, then Start. Shortcuts: <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">Space</kbd> start/pause · <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">R</kbd> reset · <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">F</kbd> fullscreen. Refreshing the page resets everything.</footer>
+    <footer class="mt-6 text-center text-sm text-slate-400">Set a duration, then Start. Shortcuts: <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">Space</kbd> start/pause · <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">R</kbd> reset · <kbd class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-200">F</kbd> fullscreen. Your task label and duration are remembered between page loads.</footer>
   </main>
   <script src="{{ url_for('static', filename='src/app.js') }}" defer></script>
 </body>
